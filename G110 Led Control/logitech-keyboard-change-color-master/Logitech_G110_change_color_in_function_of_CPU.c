@@ -25,6 +25,9 @@ static int change_color(usb_dev_handle *handle, char* buffer) {
 	int written = usb_control_msg(handle, CONTROLFLAGS, 0x00000009, 0x00000307, 0x00000000, buffer, 0x00000005, 5000);
 	if (written != 5) {
 		fprintf(stderr, "Setting color failed, error code %d\nThis happens sporadically on some machines.\n", written);
+                if (written == -1) {
+                        fprintf(stderr, "btw: Are you root?\n");
+                }
 	}
 	return written;
 }
@@ -32,7 +35,7 @@ static int change_color(usb_dev_handle *handle, char* buffer) {
 static int get_cpu() {
 	FILE * fp;
 	char buf[3];
-	char * cmd =" sar -u 1 1 | grep Average | awk '{print $8}' ";
+	char * cmd =" echo $(vmstat 1 2|tail -1|awk '{print $15}') ";
 		
 	fp = popen(cmd,"r");
 	fread(buf,1,sizeof(buf),fp);
